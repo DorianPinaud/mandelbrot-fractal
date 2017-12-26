@@ -2,7 +2,7 @@
 # Dorian Pinaud
 # 23/12/2017
 
-import math
+from math import sqrt
 
 class Complex:
 
@@ -12,11 +12,10 @@ class Complex:
         self.m = self.module()
 
     def __str__(self):
-        s = "({0},{1})".format(self.r, self.i)
-        return s
+        return "({0},{1})".format(self.r, self.i)
         
     def module(self):
-        return math.sqrt(self.r * self.r + self.i * self.i)
+        return sqrt(self.r * self.r + self.i * self.i)
     
 class MandelBrotPnt:
     
@@ -64,13 +63,11 @@ class Frame2D:
         s += "]"
         return s
 
+class MandelBrot:
 
-class MandelBrotFrame:
-
-    def __init__(self, frame_2d, nb_iteration):
+    def __init__(self, frame_2d):
         self.cx = -2.1, 0.6
         self.cy = -1.2, 1.2
-        self.nb_iteration = nb_iteration
         self.frame_2d = frame_2d
         self.zoom_w = frame_2d.w / (self.cx[1] - self.cx[0])
         self.zoom_h = frame_2d.h / (self.cy[1] - self.cy[0])
@@ -78,40 +75,25 @@ class MandelBrotFrame:
         self.indices_y = [i / self.zoom_h + self.cy[0] for i in self.frame_2d.y_indices]
         self.indices = zip(self.indices_x, self.indices_y)
         self.c_indices = [Complex(i[0], i[1]) for i in self.indices]
-        self.mandelbrot_points = [MandelBrotPnt(c, nb_iteration) for c in self.c_indices]
 
-    def point(self, x, y):
-        return self.mandelbrot_points[x + (y * (self.w() + 1))]
+    def generate_mandelbrot(nb_iteration):
+        for c in self.c_indices:
+            yield MandelBrotPnt(c, nb)
+
+    def point(self, x, y, nb_iteration):
+        return MandelBrotPnt(self.c_indices[x + (y * (self.w() + 1))], nb_iteration)
 
     def h(self):
         return self.frame_2d.h
 
     def w(self):
         return self.frame_2d.w
-    
-    def generate_(self, tab):
-        s = ""
-        for y in range(0, self.h()):
-            for x in range(0, self.w()):
-                s += str(tab[x + (y * (self.w() + 1))])
-            s += "\n"
-        return s
-        
-    def generate_fractal(self):    
-        s = "Mandelbrot fractal:\n"
-        s += self.generate_(self.mandelbrot_points)
-        return s
 
-    def generate_complex_space(self):
-        s = "Complex space:\n"
-        s += self.generate_(self.c_indices)
-        return s
-    
     def __str__(self):
         s = "Mandelbrot Frame [\n"
         s += "\t- x indices : {0}\n".format(self.indices_x)
         s += "\t- y indices : {0}\n".format(self.indices_y)
         s += "\t- complex indices: {0}\n".format([str(c) for c in self.c_indices])
-        s += "\t- mandelbrot points: {0}\n".format([p.ratio_from_boundary for p in self.mandelbrot_points])
         s += "]"
         return s
+
